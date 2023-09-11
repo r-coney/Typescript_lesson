@@ -171,3 +171,4 @@ function getLatLng(cities: Cities) {
   }
 }
 console.log(getLatLng(5)); // undefined
+
