@@ -1,7 +1,7 @@
 // boolean型
 let isLogin: boolean = true; // boolean型の変数isLoginを宣言し、trueを格納
 // isLoginにboolean型以外をの値を格納しようとするとエラーが表示される
-// isLogin = 'string'; // 型'string'を型'boolean'に割り当てることはできません。 ts(2322)
+// isLogin = 'string'; // 型'string'を型'boolean'に割り当てることはできません。 ts(322)
 
 // booleanの1つの型を限定することも可能
 // let isLogin: true = true;
@@ -171,4 +171,87 @@ function getLatLng(cities: Cities) {
   }
 }
 console.log(getLatLng(5)); // undefined
+
+// any
+// anyは特別な型で、型アノテーションされた値はどのような型の値が入ってきてもコンパイルエラーが発生しなくなる。
+// 型チェックの恩恵を手放すことにもなるため、使用は避ける。
+// tsconfig.jsonのnoImplicitAnyオプションをtrueにすることで、anyの型アノテーションをエラーとして検出できる。
+let obj: any = { name: 'penguin' };
+obj = 'Eagle';
+
+// unknown
+// unknownはany同様、どのような値でも代入可能。
+let hoge: unknown = 'hoge';
+hoge = 1;
+hoge = [];
+
+// anyの場合、存在しないプロパティにアクセスしてもコンパイルエラーにならない。
+// 一方で、unknownを使用すると存在しないプロパティにアクセスするとコンパイルエラーが発生するようになる。
+const jsonParser = (jsonString: string) => JSON.parse(jsonString);
+const user = jsonParser('{ "name": "Bluse Banner" }');
+console.log(user.name);
+console.log(user.otherName);
+// jsonPaserの返り値はanyのため、存在しないプロパティにアクセスしてもコンパイルエラーにならない。
+
+// jsonParser右辺の無名関数の戻り値にunknownを型アノテーションすることで、コンパイルエラーが発生するようになる。
+const jsonParser2 = (jsonString: string): unknown => JSON.parse(jsonString);
+const user2 = jsonParser('{ "name": "jin" }');
+console.log(user2.name);
+// console.log(user2.otherName); // undefined
+
+// 存在しているnameプロパティまでコンパイルエラーが発生してしているため、このままではコンパイルできない。
+// TypeScriptコンパイラは型を判別できていない。
+// unkonwn型アノテーションがされているオブジェクトのプロパティを参照、メソッドを実行するためにはTypeScriptコンパイラに対して教えてあげる必要がある。
+// 型アサーションという機能を使用して、型を変換します。
+type User = {
+  name: string
+}
+const jsonParser3 = (jsonString: string): unknown => JSON.parse(jsonString);
+const user3 = jsonParser3('{ "name": "hoge" }') as User;
+// 上記はカタエイリアスを使用している
+// `as User`が型アサーションという機能。
+// jsonParser('{ "name": "hoge" }')式の戻り値であるanyをUserに変換している。
+// これで、nameプロパティにアクセスしてもコンパイルエラーは発生しなくなった。
+
+// null・undefined
+// null、undefinedは他の型に代入可能です。
+let num: number = 1;
+num = null;
+let str: string = undefined;
+
+// trictNullChecksオプション
+// tsconfig.jsonのstrictNullChecksをtrueにすることで、より安全なコードを書くことを強制できる。
+const users = [
+  {
+    name: '太郎',
+    age: 19
+  },
+  {
+    name: '次郎',
+    age: 16,
+  },
+];
+
+const user = users.find(user => user.age >= 20);
+console.log(user.name);
+// strictNullChecksをfalseの場合、上記のコードはコンパイルされる。
+// しかし、user変数の値はundefinedのため、ランタイムエラーが発生するコードになっている。
+// Cannot read property 'name' of undefined
+// find関数が次のような型アノテーションになっているため、undefinedが帰ってくる場合の実装をする必要があり。
+// find(predicate: (value: T, index: number, obj: T[]) => unknown, thisArg?: any): T | undefined;
+const user4 = users.find(user => user.age >= 20);
+if(user4) {
+  console.log(user4.name);
+} else {
+  console.log(user4);
+}
+// ES2020で追加されるOptional Chaining演算子を使用すると、下記のように少ない記述にできる。
+const user5 = users.find(user => user.age >= 20);
+console.log(user5?.name);
+
+// void
+// 関数に戻り値がないことを型アノテーションする時には、voidを使用する。
+function sayHello(): void {
+  console.log('Hello TypeScript');
+}
 
