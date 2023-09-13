@@ -255,3 +255,42 @@ function sayHello(): void {
   console.log('Hello TypeScript');
 }
 
+// 関数
+// 引数への型アノテーション
+// TypeScriptの関数は、引数に型アノテーションができる。
+// 文脈的型付けと呼ばれるケースを除いて、多くの場合は引数の型推論を行わないので、明示するようにする。
+function add(a: number, b: number) {
+  return a + b;
+}
+
+// 戻り値
+// 戻り値は推論されるため、返り値をわかりやすくしたい場合に型アノテーションする。
+// returnがない関数の戻り値は、`void`で推論される
+function add2(a: number, b: number) {
+  console.log(a + b);
+}
+// returnはあるが、returnが実行されずに関数が終了するケースが存在する場合は、undefinedとのユニオン型として推論される
+function add3(array: number[]) {
+  const result = array.reduce((a, b) => a + b);
+  if (0 < result) {
+    return result;
+  }
+}
+// tsconfig.jsonのnoImplicitReturnsをtrueに設定することで、上記のようなケースをコンパイルエラーにできる。
+
+// オーバーロード
+// オーバーロードとは、渡された引数の個数によって引数の方を変えたり、戻り値の型を変えたりすることができる機能。
+function createElement(tag: 'a'): HTMLAnchorElement;
+function createElement(tag: 'canvas'): HTMLCanvasElement;
+function createElement(tag: 'table'): HTMLTableElement;
+function createElement(tag: string): HTMLElement {
+  if (tag === 'a') {
+    return new HTMLAnchorElement();
+  } else if (tag === 'canvas') {
+    return new HTMLCanvasElement();
+  } else if (tag === 'table') {
+    return new HTMLTableElement();
+  } else {
+    return new HTMLElement();
+  }
+}
